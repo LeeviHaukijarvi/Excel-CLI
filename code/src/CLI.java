@@ -38,7 +38,7 @@ public class CLI {
     private void viewCell() {
         System.out.print("Cell (e.g. A1): ");
         String coord = sc.nextLine();
-        System.out.println("Content = " + sheet.getCellContent(coord));
+        System.out.println("Content = " + sheet.getCellContent(coord.toUpperCase()));
     }
 
     private void save() {
