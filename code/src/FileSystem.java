@@ -4,7 +4,6 @@ import java.util.TreeMap;
 
 public class FileSystem {
     public static void save(Spreadsheet sheet, String path) throws IOException {
-        // Step 1: Group cells by row number
         Map<Integer, Map<Integer, String>> rows = new TreeMap<>();
 
         for (Cell c : sheet.getAllCells().values()) {
@@ -16,7 +15,6 @@ public class FileSystem {
             rows.get(row).put(col, c.getContent());
         }
 
-        // Step 2: Write rows
         BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 
         for (int row : rows.keySet()) {
@@ -24,7 +22,6 @@ public class FileSystem {
 
             int maxCol = cols.keySet().stream().mapToInt(i -> i).max().orElse(0);
 
-            // Write each column
             StringBuilder line = new StringBuilder();
             for (int col = 1; col <= maxCol; col++) {
                 String content = cols.getOrDefault(col, "");
@@ -40,7 +37,6 @@ public class FileSystem {
         writer.close();
     }
 
-    // Load spreadsheet from S2V file
     public static Spreadsheet load(String path) throws IOException {
         Spreadsheet sheet = new Spreadsheet();
 

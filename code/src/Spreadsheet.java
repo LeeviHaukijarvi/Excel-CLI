@@ -21,7 +21,8 @@ public class Spreadsheet {
     }
 
     public void setCellContent(String coord, String content) {
-        getCell(coord).setContent(content);
+        String uppercase = coord.toUpperCase();
+        getCell(uppercase).setContent(content);
     }
 
     public String getCellContent(String coord) {
