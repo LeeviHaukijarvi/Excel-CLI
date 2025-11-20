@@ -5,7 +5,7 @@ public class Cell {
 
 
     public Cell(String coordinate) {
-        this.coordinate = coordinate.toUpperCase();
+        this.coordinate = coordinate;
         this.content = "";
     }
 

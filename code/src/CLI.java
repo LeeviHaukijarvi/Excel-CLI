@@ -32,7 +32,7 @@ public class CLI {
         String coord = sc.nextLine();
         System.out.print("Content: ");
         String content = sc.nextLine();
-        sheet.setCellContent(coord, content);
+        sheet.setCellContent(coord.toUpperCase(), content);
     }
 
     private void viewCell() {
