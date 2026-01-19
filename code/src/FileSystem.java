@@ -12,7 +12,7 @@ public class FileSystem {
             int row = rowNumber(coord);
 
             rows.putIfAbsent(row, new TreeMap<>());
-            rows.get(row).put(col, c.getContent());
+            rows.get(row).put(col, c.getRawContent());  // Changed to getRawContent()
         }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(path));
@@ -49,17 +49,35 @@ public class FileSystem {
 
             for (int col = 1; col <= parts.length; col++) {
                 String coord = coordinate(col, row);
-                sheet.setCellContent(coord, parts[col - 1]);
+                String content = parts[col - 1];
+
+                if (!content.isEmpty()) {
+                    try {
+                        sheet.setCellContent(coord, content);
+                    } catch (Exception e) {
+                        System.err.println("Error loading cell " + coord + ": " + e.getMessage());
+                        // Continue loading other cells
+                    }
+                }
             }
 
             row++;
         }
 
         reader.close();
+
+        // Calculate all formulas after loading
+        try {
+            sheet.calculateAll();
+        } catch (Exception e) {
+            System.err.println("Error calculating formulas: " + e.getMessage());
+        }
+
         return sheet;
     }
+
     // Utility: Convert "A" → 1, "B" → 2, ... "AA" → 27
-    private static int columnNumber(String coord) {
+    public static int columnNumber(String coord) {  // Changed to public
         int i = 0;
         while (i < coord.length() && Character.isLetter(coord.charAt(i))) i++;
 
@@ -72,13 +90,13 @@ public class FileSystem {
     }
 
     // Utility: returns row number from coordinate "A12"
-    private static int rowNumber(String coord) {
+    public static int rowNumber(String coord) {  // Changed to public
         int i = 0;
         while (i < coord.length() && Character.isLetter(coord.charAt(i))) i++;
         return Integer.parseInt(coord.substring(i));
     }
 
-    private static String coordinate(int col, int row) {
+    public static String coordinate(int col, int row) {  // Changed to public
         StringBuilder sb = new StringBuilder();
 
         while (col > 0) {
