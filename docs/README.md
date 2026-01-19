@@ -95,6 +95,8 @@ The application follows a layered architecture with clear separation of concerns
 
 ![FileSystem.png](FileSystem.png)
 
+## 4. Design Patterns
+
 ### 4.1 Strategy Pattern (Content Types)
 
 **Purpose:** Allow different content types (text, numeric, formula) to be handled uniformly.

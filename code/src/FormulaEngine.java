@@ -27,18 +27,6 @@ public class FormulaEngine {
     }
 
     /**
-     * Convenience method: parse and calculate in one step
-     */
-    public double calculate() {
-        try {
-            Expression expr = parse();
-            return expr.calculate();
-        } catch (Exception e) {
-            throw new RuntimeException("Formula error: " + e.getMessage(), e);
-        }
-    }
-
-    /**
      * Parse expression: handles addition and subtraction
      * Expression -> Term (('+' | '-') Term)*
      */
