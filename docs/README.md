@@ -16,7 +16,6 @@
 4. [Design Patterns](#4-design-patterns)
 5. [Feature Implementation](#5-feature-implementation)
 6. [File Format](#6-file-format)
-7. [How to Build and Run](#7-how-to-build-and-run)
 
 ---
 
@@ -273,20 +272,6 @@ This represents:
 
 ---
 
-## 7. How to Build and Run
-
-### Compilation
-
-```bash
-# Navigate to project directory
-cd Excel-CLI
-
-# Compile all Java files
-javac code/src/*.java
-
-# Run the application
-java -cp code/src Main
-```
 
 ### Example Session
 
