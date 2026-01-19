@@ -1,2 +1,0 @@
-# Excel-CLI
-School project
