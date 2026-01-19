@@ -1,0 +1,234 @@
+@startuml Excel-CLI_Full_Class_Diagram
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+title Excel-CLI - Complete Class Diagram
+
+' ============ CONTENT HIERARCHY ============
+package "Content Types" #LightBlue {
+    abstract class Content {
+        +{abstract} getValue(): Object
+        +{abstract} getRawContent(): String
+    }
+
+    class TextContent {
+        -text: String
+        --
+        +TextContent(text: String)
+        +getValue(): Object
+        +getRawContent(): String
+    }
+
+    class NumericContent {
+        -number: double
+        --
+        +NumericContent(number: double)
+        +getValue(): Object
+        +getRawContent(): String
+    }
+
+    class FormulaContent {
+        -rawFormula: String
+        -expression: Expression
+        --
+        +FormulaContent(rawFormula: String, expression: Expression)
+        +getValue(): Object
+        +getRawContent(): String
+        +getExpression(): Expression
+    }
+
+    Content <|-- TextContent
+    Content <|-- NumericContent
+    Content <|-- FormulaContent
+}
+
+' ============ EXPRESSION HIERARCHY ============
+package "Expression Tree (Composite Pattern)" #LightGreen {
+    interface Expression <<interface>> {
+        +calculate(): double
+    }
+
+    class Literal {
+        -value: double
+        --
+        +Literal(value: double)
+        +calculate(): double
+    }
+
+    class CellReference {
+        -coordinate: String
+        -spreadsheet: Spreadsheet
+        --
+        +CellReference(coordinate: String, spreadsheet: Spreadsheet)
+        +calculate(): double
+        +getCoordinate(): String
+    }
+
+    class BinaryOperation {
+        -left: Expression
+        -right: Expression
+        -operator: char
+        --
+        +BinaryOperation(left: Expression, operator: char, right: Expression)
+        +calculate(): double
+        +getLeft(): Expression
+        +getRight(): Expression
+    }
+
+    class Function {
+        -functionName: String
+        -argument: Expression
+        --
+        +Function(functionName: String, argument: Expression)
+        +calculate(): double
+        +getArgument(): Expression
+    }
+
+    class Range {
+        -startCoord: String
+        -endCoord: String
+        -spreadsheet: Spreadsheet
+        --
+        +Range(startCoord: String, endCoord: String, spreadsheet: Spreadsheet)
+        +calculate(): double
+        +getValues(): List<Double>
+        +getAllCoordinates(): List<String>
+    }
+
+    Expression <|.. Literal
+    Expression <|.. CellReference
+    Expression <|.. BinaryOperation
+    Expression <|.. Function
+    Expression <|.. Range
+
+    BinaryOperation o-- "2" Expression : contains
+    Function o-- "1" Expression : contains
+}
+
+' ============ CORE CLASSES ============
+package "Core" #LightYellow {
+    class Cell {
+        -coordinate: String
+        -content: Content
+        --
+        +Cell(coordinate: String)
+        +getCoordinate(): String
+        +getContent(): Content
+        +setContent(content: Content): void
+        +getDisplayValue(): String
+        +getRawContent(): String
+    }
+
+    class Spreadsheet {
+        -cells: Map<String, Cell>
+        -dependencyManager: DependencyManager
+        --
+        +Spreadsheet()
+        +getCell(coord: String): Cell
+        +setCellContent(coord: String, rawInput: String): void
+        +getCellContent(coord: String): String
+        +calculateAll(): void
+        +getAllCells(): Map<String, Cell>
+        +reset(): void
+        +getDependencyManager(): DependencyManager
+        -parseContent(rawInput: String): Content
+        -extractReferences(formula: FormulaContent): Set<String>
+        -recalculateDependents(changedCell: String): void
+    }
+
+    class DependencyManager {
+        -dependencies: Map<String, Set<String>>
+        -dependents: Map<String, Set<String>>
+        --
+        +DependencyManager()
+        +addDependency(cell: String, dependsOn: String): void
+        +clearDependencies(cell: String): void
+        +getAllDependents(cell: String): Set<String>
+        +wouldCreateCycle(fromCell: String, toCells: Set<String>): boolean
+        +getCalculationOrder(cells: Set<String>): List<String>
+        +reset(): void
+    }
+
+    Cell --> Content : has
+    Spreadsheet --> "*" Cell : manages
+    Spreadsheet --> DependencyManager : uses
+}
+
+' ============ FORMULA ENGINE ============
+package "Formula Parser" #LightPink {
+    class FormulaEngine {
+        -formula: String
+        -position: int
+        -spreadsheet: Spreadsheet
+        --
+        +FormulaEngine(formula: String, spreadsheet: Spreadsheet)
+        +parse(): Expression
+        +calculate(): double
+        -parseExpression(): Expression
+        -parseTerm(): Expression
+        -parseFactor(): Expression
+        -parseNumber(): Expression
+        -parseCellOrFunction(): Expression
+        -parseFunction(functionName: String): Expression
+        -parseFunctionArgument(): Expression
+        -parseCellCoordinate(): String
+        -skipWhitespace(): void
+    }
+
+    class FormulaParseException {
+        +FormulaParseException(message: String)
+    }
+
+    FormulaEngine ..> Expression : creates
+    FormulaEngine ..> FormulaParseException : throws
+}
+
+' ============ I/O ============
+package "Persistence" #LightGray {
+    class FileSystem <<utility>> {
+        +{static} save(sheet: Spreadsheet, path: String): void
+        +{static} load(path: String): Spreadsheet
+        +{static} columnNumber(coord: String): int
+        +{static} rowNumber(coord: String): int
+        +{static} coordinate(col: int, row: int): String
+    }
+}
+
+' ============ UI ============
+package "User Interface" #Wheat {
+    class CLI {
+        -sheet: Spreadsheet
+        -sc: Scanner
+        --
+        +CLI()
+        +start(): void
+        -setCell(): void
+        -viewCell(): void
+        -viewGrid(): void
+        -save(): void
+        -load(): void
+        -createNew(): void
+    }
+
+    class Main {
+        +{static} main(args: String[]): void
+    }
+
+    Main --> CLI : creates
+    CLI --> Spreadsheet : uses
+    CLI --> FileSystem : uses
+}
+
+' ============ KEY RELATIONSHIPS ============
+FormulaContent --> Expression
+CellReference --> Spreadsheet
+Range --> Spreadsheet
+FormulaEngine --> Spreadsheet
+Spreadsheet --> FormulaEngine : uses
+
+@enduml
